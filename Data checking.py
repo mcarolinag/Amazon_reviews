@@ -4,6 +4,8 @@
 Created on Mon Aug 13 15:34:44 2018
 
 @author: carolina
+
+info: this code extracts review info and scrapes Amazon.com for item prices.
 """
 
 
