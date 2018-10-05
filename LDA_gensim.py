@@ -24,7 +24,6 @@ def extract():
     import numpy as np
     import pandas as pd
 
-
     observations= pd.read_csv('amazon_reviews_us_Sports_v1_00.tsv', sep='\t', header=0, error_bad_lines=False)
     
     observations.drop_duplicates(inplace=True)
@@ -33,10 +32,9 @@ def extract():
     
     return observations
 
-
 observations=extract()
 
-# gruop reviews for same product_id
+# group reviews for same product_id
 rev_cont=observations[['product_id','review_body']].groupby(observations['product_id'])
 
 rev_by_prod=pd.DataFrame({'product_id':list(observations['product_id'].unique())})
@@ -50,7 +48,6 @@ def get_reviews(product_id):
     return ",".join(list(rev_cont.get_group(product_id)['review_body'].values))
     
 rev_by_prod['review_bodies']= rev_by_prod['product_id'].apply(get_reviews)
-
 
 prod_words =pd.merge(rev_by_prod,observations[['product_id','product_title']],how='left', on='product_id')
 
@@ -69,11 +66,10 @@ def stpout(lst):
 
 prod_words['all_words_tkn']  = prod_words['all_words_tkn'].apply(stpout)
 
+# save df
 pickle.dump(prod_words, open('prod_words.pkl', 'wb'))
 
-
 #model
-
 # create dictionary
 dictionary = gensim.corpora.Dictionary(list(prod_words['all_words_tkn'].values))
 
@@ -88,13 +84,10 @@ values= list(prod_words['all_words_tkn'].values)
 
 corpus = [dictionary.doc2bow(text) for text in values]
 
-#gensim.corpora.MmCorpus.serialize('title_prod.mm', corpus)
-
-#corpus = gensim.corpora.MmCorpus('title_prod.mm')
-
 lda = gensim.models.LdaModel(corpus, id2word=dictionary, num_topics=5)
 
 vis = pyLDAvis.gensim.prepare(lda,corpus,dictionary) 
+
 pyLDAvis.save_html(vis, 'lda.html')
 
 lda.print_topics()
@@ -106,7 +99,6 @@ for i in range(len(corpus)):
 
 
 ### loking closer into topics
-
 tp_prob=[]
 topic=[]
 prob=[]
@@ -163,7 +155,6 @@ lda4_info=pd.DataFrame({'product_id':list(words_topic4['product_id']),'prod_titl
 lda4_info.describe().T
 
 ##spliting  topic 3 in 5 separate subtopics
-
 words_topic3=pd.merge(topics3,prod_words[['product_id','all_words_tkn']],how='left', on='product_id')
 
 dictionary3 = gensim.corpora.Dictionary(list(words_topic3['all_words_tkn'].values))
@@ -398,7 +389,6 @@ words_topic2_all=pd.merge(words_topic2,prod_words,how='left', on='product_id')
 pickle.dump(words_topic2_all, open('words_topic2_all.pkl', 'wb'))
 
 #visualizations
-
 pyLDAvis.enable_notebook()
 
 # Create the visualization
